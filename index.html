@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="manifest" href="./manifest.json">
+
+    <title>Document</title>
+
+<script>
+    // On ne charge le SW que lorsque la page est chargée afin de limiter les ressources au chargement de la page demandes par le SW
+    window.addEventListener('load', () => {
+        // Tous les navigateurs ne supportent pas le SW donc on vérifie
+        if ("serviceWorker" in navigator) {
+            navigator.serviceWorker.register('./sw.js')
+        }
+    })
+</script>
+
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a href="#" class="navbar-brand">
+                Course service worker
+            </a>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        <h1> Bonjour les gens </h1>
+    </div>
+    
+</body>
+</html>
