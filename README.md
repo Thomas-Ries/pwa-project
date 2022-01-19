@@ -1,5 +1,7 @@
 # PWA Course
 
+This is a crash course attended to learn about Service Worker in vanilla js.
+
 ## Manifest documentation
 
 <https://web.dev/add-manifest/>
