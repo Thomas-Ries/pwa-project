@@ -8,15 +8,39 @@ const PREFIX = 'V2';
 // const PREFIX = 'V1';
 
 // Le système n'écoute que le second chargement de la page
-self.addEventListener('install', () => {
+self.addEventListener('install', (event) => {
     //SlipWaiting permet de ne pas attendre pour charger une nouvelle version du sw
     self.skipWaiting();
+    // waitUntil permet de mettre en pause l'instalation du SW et d'attendre la résolution de la promesse avant de le considérer comme installeé et de pouvoir l'activer par la suite
+    event.waitUntil((async () => {
+        const cache = await caches.open(PREFIX);
+        cache.add(new Request('./offline.html'));
+    })()
+    );
+
     console.log(`${PREFIX} Install`);
 });
 
-self.addEventListener('activate', () => {
+self.addEventListener('activate', (event) => {
     // clients.claim() permet de controller automatiquement la page quand le SW s'active.
     clients.claim();
+    
+    // Lorsque ce SW devient actif, il faut vider les autres clés de caches qui ne servent plus à rien
+    event.waitUntil((async () => {
+        // Je récupère les clés de cache
+        const keys = await caches.keys();
+        // Je parcours les clés pour les vider
+        // On ne peut pas considérer le SW comme actif tant qu'il n' a pas vider les clés de caches antiérieure donc on fait une promesse
+        await Promise.all(
+            keys.map((key) => {
+                if(!key.includes(PREFIX)) {
+                    return caches.delete(key);
+                }
+            })
+        )
+    })()
+    );
+
     console.log(`${PREFIX} Active`);
 })
 
@@ -45,7 +69,12 @@ self.addEventListener('fetch', (event) => {
                 }
                 catch(e) {
                     // Si pas de réseau alors on exécute ce code
-                    return new Response("Bonjour les gens");
+                    //Lire le cache
+                    const cache = await caches.open(PREFIX);
+
+                    // Ce que je veux lire une fois le cache attrapé
+                    // C'est une réponse qui renvoie une promesse donc on await
+                    return await cache.match('./offline.html');
                 }
         })()
         );
