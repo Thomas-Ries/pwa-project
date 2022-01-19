@@ -7,6 +7,12 @@
 const PREFIX = 'V2';
 // const PREFIX = 'V1';
 
+// Mise en cache du CDN Bootstrap pour mode offline
+const CACHED_FILES = [
+    "https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css",
+]
+
+
 // Le système n'écoute que le second chargement de la page
 self.addEventListener('install', (event) => {
     //SlipWaiting permet de ne pas attendre pour charger une nouvelle version du sw
@@ -14,7 +20,10 @@ self.addEventListener('install', (event) => {
     // waitUntil permet de mettre en pause l'instalation du SW et d'attendre la résolution de la promesse avant de le considérer comme installeé et de pouvoir l'activer par la suite
     event.waitUntil((async () => {
         const cache = await caches.open(PREFIX);
-        cache.add(new Request('./offline.html'));
+        // Récupère un tableau qui contiendra tous les fichiers cachés et la page offline
+        await Promise.all([...CACHED_FILES, './offline.html'].map((path) => {
+            return cache.add(new Request(path));
+        }))
     })()
     );
 
